@@ -18,13 +18,25 @@ class SearchBooks extends Component{
     searchResults : []
   }
 
+  updateSearch(bookObj, shelf){
+    var results = this.state.searchResults;
+    for(var i=0; i < results.length; i++){
+      if(results[i].id === bookObj.id){
+        results[i].shelf = shelf;
+        break;
+      }
+    }
+
+    this.state(results);
+  }
+
   /* Callback when the user types in the search field.*/
   updateQuery(query){
     // Escape the query string.
     query  = escapeRegExp(query.trim());
 
     // Hold on to the allBooks prop.
-    var allBooks = this.props.allBooks;
+    var allBooks = this.props.location.state.allBooks;
 
     // Set the state.
     this.setState({queryStr: query})
@@ -59,6 +71,8 @@ class SearchBooks extends Component{
           let index = ids.indexOf(searchResults[i].id)
           if(index > -1){
             uniqueResults[i].shelf = allBooks[index].shelf;
+          }else{
+            uniqueResults[i].shelf = "none";
           }
         }
 
@@ -72,10 +86,6 @@ class SearchBooks extends Component{
   }
 
   render(){
-
-    // Deconstruct.
-    const {onShelfChange} = this.props;
-
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -91,7 +101,7 @@ class SearchBooks extends Component{
         <div className="search-books-results">
           <ol className="books-grid">
             {this.state.searchResults.map((bookObj) => (
-              <Book key={bookObj.id} bookObj={bookObj} onShelfChange={onShelfChange}/>
+              <Book key={bookObj.id} bookObj={bookObj} notifySearch={this.updateSearch}/>
             ))}
           </ol>
         </div>

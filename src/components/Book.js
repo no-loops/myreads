@@ -1,5 +1,7 @@
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
+import {connect} from 'react-redux';
+import * as ACTIONS from '../actions';
 
 /*
 * Book component that renders a book.
@@ -7,14 +9,26 @@ import PropTypes from 'prop-types'
 class Book extends Component{
 
   static propTypes = {
-    bookObj        : PropTypes.object.isRequired,
-    onShelfChange  : PropTypes.func.isRequired
+    bookObj : PropTypes.object.isRequired
+  }
+
+  state = {};
+
+  onShelfChange(evt, bookObj){
+    this.props.updateShelfOnBook(bookObj, evt.target.value);
+
+    bookObj.shelf = evt.target.value;
+    this.setState({bookObj: bookObj});
+  }
+
+  componentWillMount(){
+    const {bookObj} = this.props;
+    this.setState({bookObj: bookObj});
   }
 
   render(){
-
     // Deconstruct.
-    const {bookObj, onShelfChange} = this.props;
+    const {bookObj} = this.state;
 
     return (
       <li>
@@ -22,7 +36,7 @@ class Book extends Component{
           <div className="book-top">
             <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${(bookObj.imageLinks)? bookObj.imageLinks.thumbnail : ""})` }}></div>
             <div className="book-shelf-changer">
-              <select value={bookObj.shelf} onChange={(evt) => onShelfChange(evt, bookObj)}>
+              <select value={bookObj.shelf} onChange={(evt) => this.onShelfChange(evt, bookObj)}>
                 <option value="none" disabled>Move to...</option>
                 <option value="currentlyReading">Currently Reading</option>
                 <option value="wantToRead">Want to Read</option>
@@ -38,4 +52,11 @@ class Book extends Component{
     )}
   }
 
-  export default Book;
+  // Dispatch an action to update the bookshelf on the bookobj.
+  function mapDispatchToProps (dispatch) {
+    return {
+      updateShelfOnBook: (book, newShelf) => dispatch(ACTIONS.updateShelfOnBook(book, newShelf))
+    }
+  }
+
+export default connect(null, mapDispatchToProps)(Book);
